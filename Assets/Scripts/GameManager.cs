@@ -87,14 +87,15 @@ public class GameManager : MonoBehaviour
         width = 16;
         height = 16;
         gameBoard = new Entity[height, width];
-        for (int r = 0; r < height; r++)
+        for (uint r = 0; r < height; r++)
         {
-            for (int c = 0; c < width; c++)
+            for (uint c = 0; c < width; c++)
             {
                 /* 50% chance for plain tile, 25% chance each for other types */
                 int rand = Random.Range(0, 4);
                 int tileIndex = rand >= tilePrefabs.Length ? 0 : rand;
-                Instantiate(tilePrefabs[tileIndex], new Vector3(c * TILE_SIZE, r * TILE_SIZE, 0f), Quaternion.identity);
+                Tile tile = Instantiate(tilePrefabs[tileIndex], new Vector3(c * TILE_SIZE, r * TILE_SIZE, 0f), Quaternion.identity).GetComponent<Tile>();
+                tile.SetPosition(c, r);
 
                 gameBoard[r, c] = new EnemyHorde();
             }
@@ -144,7 +145,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Precondition: x and y are nonnegative integers that are valid game board indices
+    /// Precondition: x and y are nonnegative integers that are valid game board indices.
     /// Postcondition: processes the addition of this plant object,
     /// by adding it to the game board and also to the plant history data structure.
     /// </summary>
@@ -154,7 +155,7 @@ public class GameManager : MonoBehaviour
     {
         Plant Spawn = Instantiate(plantPrefab, new Vector3(x*TILE_SIZE, y*TILE_SIZE, 0), Quaternion.identity).GetComponent<Plant>();
         plantHistory.Add(Spawn, currentCycle);
-        gameBoard[y,x] = Spawn;
+        gameBoard[y, x] = Spawn;
     }
 
     /// <summary>
@@ -188,7 +189,6 @@ public class GameManager : MonoBehaviour
         gameBoard[y, x] = new EnemyHorde();
     }
 
-    // Update is called once per frame
     private void Update()
     {
         switch (currentPhase)
@@ -271,5 +271,22 @@ public class GameManager : MonoBehaviour
         plantLabel.text = "Plants on Field: " + plantCount;
         seedLabel.text = "Seeds: " + seedCount;
         ERPLabel.text = "[ERP]: " + ERPCount;
+    }
+
+    public void OnTileClick(uint tileX, uint tileY)
+    {
+        switch (currentPhase)
+        {
+            case Phase.Dawn:
+                if (seedCount > 0)
+                {
+                    seedCount--;
+                    AddPlant(tileX, tileY);
+                }
+                break;
+            case Phase.Day:
+
+                break;
+        }
     }
 }
