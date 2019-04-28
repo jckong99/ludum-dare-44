@@ -94,6 +94,7 @@ public class GameManager : MonoBehaviour
         /* Initialize at dawn. */
         currentPhase = Phase.Dawn;
         currentWeather = Weather.Sun;
+        currentCycle = 1;
 
         plantCount = 0;
         currentEnemyCount = 0;
@@ -117,8 +118,8 @@ public class GameManager : MonoBehaviour
             currentPhase = Phase.Night;
         } /*else if (RemainingTime <= 0)
         {
-            CurrentPhase = Phase.Dawn;
-            RemainingTime = ResetTime;
+            currentPhase = Phase.Dawn;
+            remainingTime = ResetTime;
         }*/ // should not need this...
     }
 
@@ -178,7 +179,8 @@ public class GameManager : MonoBehaviour
                 remainingTime -= Time.deltaTime;
                 if (remainingTime <= 0)
                 {
-                    AdvancePhase();
+                    currentPhase = Phase.Dawn;
+                    currentCycle ++;
                     return;
                 }
                 uint enemyLimit = (uint) (nutrients / 0.25f);
