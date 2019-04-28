@@ -2,7 +2,7 @@
 
 public enum Type { Plant, Horde };
 
-public abstract class Entity : MonoBehaviour
+public interface Entity
 {
-    public new Type tag;
+    Type getTag();
 }

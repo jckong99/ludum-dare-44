@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
 {
     private static GameManager gameManager;
     [SerializeField] private GameObject plantPrefab = null;
+    [SerializeField] private GameObject enemyPrefab = null;
     [SerializeField] private GameObject[] tilePrefabs = null;
 
     private int width, height;
@@ -21,11 +22,21 @@ public class GameManager : MonoBehaviour
     private uint seedCount;
     private int hydration;
     private float nutrients;
+
+    private uint currentEnemyCount;
+
+
+    /* Time-related data */
     private float remainingTime;
     private const float RESET_TIME = 300;
+
+    /* Cycle-related data */
     private uint currentCycle;
     private uint goalCycle;
-    public const float TILE_SIZE = 0.500f; /* Assuming 16 tile x 16 tile or 800p x 800p board */
+
+    /* A constant used anywhere, for graphical rendering */
+    /* Assumes a 16 tile x 16 tile (800p x 800p) board */
+    public const float TILE_SIZE = 0.500f;
 
     private Phase currentPhase;
     private Weather currentWeather;
@@ -44,33 +55,33 @@ public class GameManager : MonoBehaviour
         if (gameManager == null)
         {
             gameManager = this;
-            DontDestroyOnLoad(gameManager);
         } else if (gameManager != this)
         {
             Destroy(gameManager);
         }
+        /*else // no-op
+        {
 
-        /* Generate board */
-        width = 16;
-        height = 16;
+        }*/
+        DontDestroyOnLoad(gameManager);
+/*        InitGame();*/
+    }
+
+    // Start is called before the first frame update
+    private void Start()
+    {
+        /* Init data structures */
+        width = 10;
+        height = 10;
         gameBoard = new Entity[height, width];
         for (int r = 0; r < height; r++)
         {
             for (int c = 0; c < width; c++)
             {
-                /* 50% chance for plain tile, 25% each for other types */
-                int rand = Random.Range(0, 4);
-                int tileIndex = rand >= tilePrefabs.Length ? 0 : rand;
-                Instantiate(tilePrefabs[tileIndex], new Vector3(c * TILE_SIZE, r * TILE_SIZE, 0f), Quaternion.identity);
-
-                gameBoard[r,c] = new EnemyHorde();
+                gameBoard[r,c] = Instantiate(plantPrefab, new Vector3(c * TILE_SIZE, r * TILE_SIZE, 0), Quaternion.identity).GetComponent<Entity>();
             }
         }
-    }
 
-    private void Start()
-    {
-        /* Init data structures */
         plantHistory = new Dictionary<Plant, uint>();
 
         /* Initialize at dawn. */
@@ -78,6 +89,7 @@ public class GameManager : MonoBehaviour
         currentWeather = Weather.Sun;
 
         plantCount = 0;
+        currentEnemyCount = 0;
         ERPCount = 0;
         seedCount = 1;
         hydration = 10; // on a scale 0 - 20?
@@ -112,7 +124,7 @@ public class GameManager : MonoBehaviour
     /// <param name="y"></param>
     public void AddPlant(uint x, uint y)
     {
-        Plant Spawn = Instantiate(plantPrefab, new Vector3(x * TILE_SIZE, y * TILE_SIZE, 0), Quaternion.identity).GetComponent<Plant>();
+        Plant Spawn = Instantiate(plantPrefab, new Vector3(x*TILE_SIZE, y*TILE_SIZE, 0), Quaternion.identity).GetComponent<Plant>();
         plantHistory.Add(Spawn, currentCycle);
         gameBoard[y,x] = Spawn;
     }
@@ -144,6 +156,7 @@ public class GameManager : MonoBehaviour
         plantCount--;
     }
 
+    // Update is called once per frame
     private void Update()
     {
         switch (currentPhase)
@@ -159,7 +172,43 @@ public class GameManager : MonoBehaviour
                 if (remainingTime <= 0)
                 {
                     AdvancePhase();
+                    return;
                 }
+                uint enemyLimit = (uint) (nutrients / 0.25f);
+                if (currentEnemyCount < enemyLimit)
+                {
+                    if (remainingTime < 0.25 * RESET_TIME && 
+                        remainingTime > 0.22*RESET_TIME)
+                    {
+                        for (uint iter = currentEnemyCount; iter < enemyLimit; iter++)
+                        {
+                            if (Random.Range(0.0f, 1.0f) < 0.50f)
+                            {
+                                Enemy next = (Instantiate(enemyPrefab, new Vector3(Random.Range(0.0f, TILE_SIZE * width),
+                                0, 0), Quaternion.identity)).AddComponent<Enemy>();
+                            } else
+                            {
+                                Enemy next = (Instantiate(enemyPrefab, new Vector3(0,
+                                Random.Range(0.0f, TILE_SIZE * height), 0), Quaternion.identity)).AddComponent<Enemy>();
+                            }
+                            
+                        }
+                        currentEnemyCount = enemyLimit;
+/*                    } else if (remainingTime < 0.70f*RESET_TIME) {*/
+                    } else if ((remainingTime > 0.70f * RESET_TIME) &&
+                         (remainingTime < 0.75f * RESET_TIME))
+                    {
+                        float chance = Random.Range(0.0f, 1.0f);
+                        if (chance > 0.60f)
+                        {
+                            Enemy next = (Instantiate(enemyPrefab,
+                                new Vector3(Random.Range(0.0f, TILE_SIZE * width),
+                                0, 0), Quaternion.identity)).AddComponent<Enemy>();
+                        }
+                    }
+
+                }
+
                 break;
             default:
 

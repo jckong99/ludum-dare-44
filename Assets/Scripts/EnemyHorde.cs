@@ -6,7 +6,7 @@ public class EnemyHorde : Entity
 
     private void Start()
     {
-        this.tag = Type.Horde;
+
     }
 
     /// <summary>
@@ -25,5 +25,10 @@ public class EnemyHorde : Entity
     public void RemoveEnemy(Enemy enemy)
     {
         horde.Remove(enemy.Id);
+    }
+
+    public Type getTag()
+    {
+        return Type.Horde;
     }
 }
