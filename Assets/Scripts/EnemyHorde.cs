@@ -4,11 +4,6 @@ public class EnemyHorde : Entity
 {
     private Dictionary<int, Enemy> horde = new Dictionary<int, Enemy>();
 
-    private void Start()
-    {
-
-    }
-
     /// <summary>
     /// Adds specified Enemy to internal Dictionary, mapping ID to Enemy object.
     /// </summary>

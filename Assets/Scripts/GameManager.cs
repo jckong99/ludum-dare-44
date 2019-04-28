@@ -169,7 +169,7 @@ public class GameManager : MonoBehaviour
         }
         plantCount--;
         Destroy((Plant)gameBoard[y, x]);
-        Instantiate(hordePrefab, new Vector3(x*TILE_SIZE, y*TILE_SIZE, 0), Quaternion.identity).GetComponent<EnemyHorde>();
+        gameBoard[y, x] = new EnemyHorde();
     }
 
     // Update is called once per frame
