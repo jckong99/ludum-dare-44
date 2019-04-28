@@ -84,13 +84,18 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         /* Init data structures */
-        width = 10;
-        height = 10;
+        width = 16;
+        height = 16;
         gameBoard = new Entity[height, width];
         for (int r = 0; r < height; r++)
         {
             for (int c = 0; c < width; c++)
             {
+                /* 50% chance for plain tile, 25% chance each for other types */
+                int rand = Random.Range(0, 4);
+                int tileIndex = rand >= tilePrefabs.Length ? 0 : rand;
+                Instantiate(tilePrefabs[tileIndex], new Vector3(c * TILE_SIZE, r * TILE_SIZE, 0f), Quaternion.identity);
+
                 gameBoard[r, c] = new EnemyHorde();
             }
         }
@@ -126,6 +131,7 @@ public class GameManager : MonoBehaviour
         } else if (currentPhase == Phase.Day)
         {
             currentPhase = Phase.Night;
+            remainingTime = RESET_TIME;
             advanceButton.enabled = false;
             clockFill.fillAmount = 1f;
             clockFill.gameObject.SetActive(true);
