@@ -1,8 +1,13 @@
 ﻿using System.Collections.Generic;
 
-public class EnemyHorde : IEntity
+public class EnemyHorde : Entity
 {
     private Dictionary<int, Enemy> horde = new Dictionary<int, Enemy>();
+
+    private void Start()
+    {
+        this.tag = Type.Horde;
+    }
 
     /// <summary>
     /// Adds specified Enemy to internal Dictionary, mapping ID to Enemy object.

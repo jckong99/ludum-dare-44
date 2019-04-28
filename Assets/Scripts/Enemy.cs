@@ -27,16 +27,20 @@ public class Enemy : MonoBehaviour
     private void UpdateGridPosition()
     {
         GameManager gameManager = GameManager.GetInstance();
-        IEntity entity;
+        Entity entity;
 
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
         if ((transform.position - previousPosition).sqrMagnitude >= Mathf.Pow(0.5f * GameManager.TILE_SIZE, 2))
         {
-            if ((entity = gameManager.EntityAt((int)targetPosition.x, (int)targetPosition.y)) is EnemyHorde)
+            if ((entity = gameManager.EntityAt((int)targetPosition.x, (int)targetPosition.y)).tag == Type.Horde)
+            {
                 ((EnemyHorde)entity).AddEnemy(this);
-            if ((entity = gameManager.EntityAt((int)previousPosition.x, (int)previousPosition.y)) is EnemyHorde)
+            }
+            if ((entity = gameManager.EntityAt((int)previousPosition.x, (int)previousPosition.y)).tag == Type.Horde)
+            {
                 ((EnemyHorde)entity).RemoveEnemy(this);
+            }
         }
     }
 }

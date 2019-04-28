@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject plantPrefab = null;
 
     private int width, height;
-    private IEntity[,] gameBoard;
+    private Entity[,] gameBoard;
     private Dictionary<Plant, uint> plantHistory;
 
     /* GLOBAL STATS */
@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
         return gameManager;
     }
 
-    public IEntity EntityAt(int x, int y) {
+    public Entity EntityAt(int x, int y) {
         return gameBoard[y, x];
     }
 
@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
         /* Init data structures */
         width = 10;
         height = 10;
-        gameBoard = new IEntity[height, width];
+        gameBoard = new Entity[height, width];
         for (int r=0; r < height; r ++)
         {
             for (int c = 0; c < width; c++)
