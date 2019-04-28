@@ -192,20 +192,29 @@ public class GameManager : MonoBehaviour
                 uint enemyLimit = (uint) (nutrients / 0.25f);
                 if (currentEnemyCount < enemyLimit)
                 {
-                    if (remainingTime < 0.25 * RESET_TIME && 
+                    if (remainingTime < 0.25*RESET_TIME && 
                         remainingTime > 0.22*RESET_TIME)
                     {
                         for (uint iter = currentEnemyCount; iter < enemyLimit; iter++)
                         {
+                            int nX;
+                            int nY;
                             if (Random.Range(0.0f, 1.0f) < 0.50f)
                             {
-                                Enemy next = (Instantiate(enemyPrefab, new Vector3(Random.Range(0.0f, TILE_SIZE * width),
-                                0, 0), Quaternion.identity)).AddComponent<Enemy>();
+                                nX = Random.Range(0, (int)TILE_SIZE * width);
+                                nY = 0;
                             } else
                             {
-                                Enemy next = (Instantiate(enemyPrefab, new Vector3(0,
-                                Random.Range(0.0f, TILE_SIZE*height), 0), Quaternion.identity)).AddComponent<Enemy>();
+                                nX = 0;
+                                nY = Random.Range(0, (int) TILE_SIZE * height);
                             }
+                            Enemy next = (Instantiate(enemyPrefab, new Vector3(nX,
+    nY, 0), Quaternion.identity)).AddComponent<Enemy>();
+                            if (gameBoard[nY, nX].getTag() == Type.Plant)
+                            {
+                                KillPlant(nX, nY);
+                            }
+                            ((EnemyHorde)gameBoard[nY, nX]).AddEnemy(next);
                         }
                         currentEnemyCount = enemyLimit;
 /*                    } else if (remainingTime < 0.70f*RESET_TIME) {*/
