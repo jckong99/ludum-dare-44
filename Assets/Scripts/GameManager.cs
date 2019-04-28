@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
     private int width, height;
     private Entity[,] gameBoard;
     private Dictionary<Plant, uint> plantHistory;
+    private bool weaponMode;
 
     /* GLOBAL STATS */
     /* The only one we should need to share with the user is the SeedCount. */
@@ -105,6 +106,7 @@ public class GameManager : MonoBehaviour
         hydration = 10; // on a scale 0 - 20?
         nutrients = 4.50f; // on a scale 0 - 10?
         remainingTime = RESET_TIME;
+        weaponMode = false;
     }
 
     /// <summary>
@@ -220,6 +222,14 @@ public class GameManager : MonoBehaviour
                                 0, 0), Quaternion.identity)).AddComponent<Enemy>();
                         }
                     }
+                }
+                if (Input.GetKeyDown(KeyCode.A))
+                {
+                    weaponMode = true;
+                }
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    weaponMode = false;
                 }
                 break;
             default:
