@@ -11,8 +11,6 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private GameObject plantPrefab = null;
     [SerializeField] private GameObject enemyPrefab = null;
-    [SerializeField] private GameObject hordePrefab = null;
-    [SerializeField] private GameObject emptyPrefab = null;
     [SerializeField] private GameObject[] tilePrefabs = null;
 
     [SerializeField] private TextMeshProUGUI dayLabel = null;
@@ -88,7 +86,7 @@ public class GameManager : MonoBehaviour
         {
             for (int c = 0; c < width; c++)
             {
-                gameBoard[r,c] = Instantiate(emptyPrefab, new Vector3(c * TILE_SIZE, r * TILE_SIZE, 0), Quaternion.identity).GetComponent<Entity>();
+                gameBoard[r, c] = new EnemyHorde();
             }
         }
 
