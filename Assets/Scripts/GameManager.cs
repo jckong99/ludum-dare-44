@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public enum Phase { Day, Night, Dawn };
@@ -9,6 +8,7 @@ public class GameManager : MonoBehaviour
 {
     private static GameManager gameManager;
     [SerializeField] private GameObject plantPrefab = null;
+    [SerializeField] private GameObject[] tilePrefabs = null;
 
     private int width, height;
     private Entity[,] gameBoard;
@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     private const float RESET_TIME = 300;
     private uint currentCycle;
     private uint goalCycle;
-    public const float TILE_SIZE = 0.500f;
+    public const float TILE_SIZE = 0.500f; /* Assuming 16 tile x 16 tile or 800p x 800p board */
 
     private Phase currentPhase;
     private Weather currentWeather;
@@ -44,33 +44,33 @@ public class GameManager : MonoBehaviour
         if (gameManager == null)
         {
             gameManager = this;
+            DontDestroyOnLoad(gameManager);
         } else if (gameManager != this)
         {
             Destroy(gameManager);
         }
-        /*else // no-op
-        {
 
-        }*/
-        DontDestroyOnLoad(gameManager);
-/*        InitGame();*/
-    }
-
-    // Start is called before the first frame update
-    private void Start()
-    {
-        /* Init data structures */
-        width = 10;
-        height = 10;
+        /* Generate board */
+        width = 16;
+        height = 16;
         gameBoard = new Entity[height, width];
-        for (int r=0; r < height; r ++)
+        for (int r = 0; r < height; r++)
         {
             for (int c = 0; c < width; c++)
             {
- /*               gameBoard[r,c] = Instantiate(plantPrefab, new Vector3(c * TILE_SIZE, r * TILE_SIZE, 0), Quaternion.identity);*/
+                /* 50% chance for plain tile, 25% each for other types */
+                int rand = Random.Range(0, 4);
+                int tileIndex = rand >= tilePrefabs.Length ? 0 : rand;
+                Instantiate(tilePrefabs[tileIndex], new Vector3(c * TILE_SIZE, r * TILE_SIZE, 0f), Quaternion.identity);
+
+                gameBoard[r,c] = new EnemyHorde();
             }
         }
+    }
 
+    private void Start()
+    {
+        /* Init data structures */
         plantHistory = new Dictionary<Plant, uint>();
 
         /* Initialize at dawn. */
@@ -85,7 +85,9 @@ public class GameManager : MonoBehaviour
         remainingTime = RESET_TIME;
     }
 
-    /* To be called from the Button object */
+    /// <summary>
+    /// To be called from the Button object
+    /// </summary>
     public void AdvancePhase()
     {
         if (currentPhase == Phase.Dawn)
@@ -101,19 +103,24 @@ public class GameManager : MonoBehaviour
         }*/ // should not need this...
     }
 
-    /* Precondition: x and y are nonnegative integers that are valid
-     * game board indices
-     * Postcondition: processes the addition of this plant object,
-     * by adding it to the game board and also to the plant history 
-     * data structure. */
+    /// <summary>
+    /// Precondition: x and y are nonnegative integers that are valid game board indices
+    /// Postcondition: processes the addition of this plant object,
+    /// by adding it to the game board and also to the plant history data structure.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
     public void AddPlant(uint x, uint y)
     {
-        Plant Spawn/* = Instantiate(plantPrefab, new Vector3(x*TILE_SIZE, y*TILE_SIZE, 0), Quaternion.identity)*/;
+        Plant Spawn = Instantiate(plantPrefab, new Vector3(x * TILE_SIZE, y * TILE_SIZE, 0), Quaternion.identity).GetComponent<Plant>();
         plantHistory.Add(Spawn, currentCycle);
         gameBoard[y,x] = Spawn;
     }
 
-    /* To be called by a Plant, whenever it is extracted. */
+    /// <summary>
+    /// To be called by a Plant, whenever it is extracted.
+    /// </summary>
+    /// <param name="extracted"></param>
     public void ExtractPlant(Plant extracted)
     {
         gameBoard[extracted.Y, extracted.X] = null;
@@ -127,14 +134,16 @@ public class GameManager : MonoBehaviour
         nutrients += Mathf.Max(10.0f, nutrients + (0.1f*daysAlive));
     }
 
-    /* To be called by a Plant OR Pathogen object, whenever it kills a plant. */
+    /// <summary>
+    /// To be called by a Plant OR Pathogen object, whenever it kills a plant.
+    /// </summary>
+    /// <param name="debilitated"></param>
     public void KillPlant(Plant debilitated)
     {
         gameBoard[debilitated.Y, debilitated.X] = null;
         plantCount--;
     }
 
-    // Update is called once per frame
     private void Update()
     {
         switch (currentPhase)
