@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         Width = 10;
         Height = 10;
@@ -75,7 +75,7 @@ public class GameManager : MonoBehaviour
     }
 
     /* To be called from the Button object */
-    void AdvancePhase()
+    public void AdvancePhase()
     {
         if (CurrentPhase == Phase.Dawn)
         {
@@ -93,25 +93,25 @@ public class GameManager : MonoBehaviour
     /* To be called by a Plant, whenever it is extracted. */
     public void ExtractPlant(Plant extracted)
     {
-        GameBoard[extracted.getY(), extracted.getX()] = null;
+        GameBoard[extracted.Y, extracted.X] = null;
         PlantCount--;
         ERPCount++;
 
         /* TODO process the "Return," which means
          * increasing the Hydration and/or Nutrients globally. */
         Hydration = Mathf.Max(20, Hydration + extracted.DaysAlive);
-        Nutrients += Mathf.Max(10.0, Nutrients + (0.1*extracted.DaysAlive));
+        Nutrients += Mathf.Max(10.0f, Nutrients + (0.1f*extracted.DaysAlive));
     }
 
     /* To be called by a Plant OR Pathogen object, whenever it kills a plant. */
     public void KillPlant(Plant debilitated)
     {
-        GameBoard[debilitated.getY(), debilitated.getX()] = null;
+        GameBoard[debilitated.Y, debilitated.X] = null;
         PlantCount--;
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         switch (CurrentPhase)
         {

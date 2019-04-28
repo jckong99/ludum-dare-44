@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-public class EnemyHorde
+public class EnemyHorde : IEntity
 {
     private Dictionary<int, Enemy> horde = new Dictionary<int, Enemy>();
 

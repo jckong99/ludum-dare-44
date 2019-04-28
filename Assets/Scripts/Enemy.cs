@@ -31,11 +31,11 @@ public class Enemy : MonoBehaviour
 
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
-        if ((transform.position - previousPosition).sqrMagnitude >= Mathf.Pow(0.5 * gameManager.TILE_SIZE, 2))
+        if ((transform.position - previousPosition).sqrMagnitude >= Mathf.Pow(0.5f * GameManager.TILE_SIZE, 2))
         {
-            if ((entity = gameManager.EntityAt(targetPosition.x, targetPosition.y)) is EnemyHorde)
+            if ((entity = gameManager.EntityAt((int)targetPosition.x, (int)targetPosition.y)) is EnemyHorde)
                 ((EnemyHorde)entity).AddEnemy(this);
-            if ((entity = gameManager.EntityAt(previousPosition.x, previousPosition.y)) is EnemyHorde)
+            if ((entity = gameManager.EntityAt((int)previousPosition.x, (int)previousPosition.y)) is EnemyHorde)
                 ((EnemyHorde)entity).RemoveEnemy(this);
         }
     }
