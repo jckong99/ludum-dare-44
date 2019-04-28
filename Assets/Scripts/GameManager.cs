@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private GameObject plantPrefab = null;
     [SerializeField] private GameObject enemyPrefab = null;
+    [SerializeField] private GameObject hordePrefab = null;
+    [SerializeField] private GameObject emptyPrefab = null;
     [SerializeField] private GameObject[] tilePrefabs = null;
 
     [SerializeField] private TextMeshProUGUI dayLabel = null;
@@ -85,7 +87,7 @@ public class GameManager : MonoBehaviour
         {
             for (int c = 0; c < width; c++)
             {
-                gameBoard[r,c] = Instantiate(plantPrefab, new Vector3(c * TILE_SIZE, r * TILE_SIZE, 0), Quaternion.identity).GetComponent<Entity>();
+                gameBoard[r,c] = Instantiate(emptyPrefab, new Vector3(c * TILE_SIZE, r * TILE_SIZE, 0), Quaternion.identity).GetComponent<Entity>();
             }
         }
 
@@ -157,11 +159,15 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// To be called by a Plant OR Pathogen object, whenever it kills a plant.
     /// </summary>
-    /// <param name="debilitated"></param>
-    public void KillPlant(Plant debilitated)
+    public void KillPlant(int x, int y)
     {
-        gameBoard[debilitated.Y, debilitated.X] = null;
+        if (x < 0 || y < 0 || x >= width || y >= height)
+        {
+            throw new System.Exception();
+        }
         plantCount--;
+        Destroy((Plant)gameBoard[y, x]);
+        Instantiate(hordePrefab, new Vector3(x*TILE_SIZE, y*TILE_SIZE, 0), Quaternion.identity).GetComponent<EnemyHorde>();
     }
 
     // Update is called once per frame
@@ -198,9 +204,8 @@ public class GameManager : MonoBehaviour
                             } else
                             {
                                 Enemy next = (Instantiate(enemyPrefab, new Vector3(0,
-                                Random.Range(0.0f, TILE_SIZE * height), 0), Quaternion.identity)).AddComponent<Enemy>();
+                                Random.Range(0.0f, TILE_SIZE*height), 0), Quaternion.identity)).AddComponent<Enemy>();
                             }
-                            
                         }
                         currentEnemyCount = enemyLimit;
 /*                    } else if (remainingTime < 0.70f*RESET_TIME) {*/
@@ -215,9 +220,7 @@ public class GameManager : MonoBehaviour
                                 0, 0), Quaternion.identity)).AddComponent<Enemy>();
                         }
                     }
-
                 }
-
                 break;
             default:
 

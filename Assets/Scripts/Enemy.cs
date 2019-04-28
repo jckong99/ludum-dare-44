@@ -33,11 +33,14 @@ public class Enemy : MonoBehaviour
 
         if ((transform.position - previousPosition).sqrMagnitude >= Mathf.Pow(0.5f * GameManager.TILE_SIZE, 2))
         {
-            if ((entity = gameManager.EntityAt((int)targetPosition.x, (int)targetPosition.y)).getTag() == Type.Horde)
+            int posX = (int)targetPosition.x;
+            int posY = (int)targetPosition.y;
+            if ((entity = gameManager.EntityAt(posX, posY)).getTag() == Type.Plant)
             {
-                ((EnemyHorde)entity).AddEnemy(this);
+                gameManager.KillPlant(posX, posY);
             }
-            if ((entity = gameManager.EntityAt((int)previousPosition.x, (int)previousPosition.y)).getTag() == Type.Horde)
+            ((EnemyHorde)entity).AddEnemy(this);
+            if ((entity = gameManager.EntityAt(posX, posY)).getTag() == Type.Horde)
             {
                 ((EnemyHorde)entity).RemoveEnemy(this);
             }
