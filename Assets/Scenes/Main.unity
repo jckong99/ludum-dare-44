@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 136408474}
   - component: {fileID: 136408473}
   m_Layer: 5
-  m_Name: Day Label
+  m_Name: DayLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -350,7 +350,7 @@ GameObject:
   - component: {fileID: 204435353}
   - component: {fileID: 204435352}
   m_Layer: 5
-  m_Name: Weapon 2 Label
+  m_Name: Weapon2Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -542,10 +542,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   plantPrefab: {fileID: 0}
+  enemyPrefab: {fileID: 0}
   tilePrefabs:
   - {fileID: 3940969595301125997, guid: c733490a7806e7e4db2074569c0ef1ac, type: 3}
   - {fileID: 3061924221655099713, guid: 4f6c518ae274cf74fbc26b9273dd949b, type: 3}
   - {fileID: 2646808220451181585, guid: 5151077195660804ab45627982185e90, type: 3}
+  dayLabel: {fileID: 136408473}
+  plantLabel: {fileID: 2124191792}
+  seedLabel: {fileID: 763985738}
+  ERPLabel: {fileID: 2002322005}
 --- !u!1 &432168152
 GameObject:
   m_ObjectHideFlags: 0
@@ -558,7 +563,7 @@ GameObject:
   - component: {fileID: 432168155}
   - component: {fileID: 432168154}
   m_Layer: 5
-  m_Name: Weapon 1 Label
+  m_Name: Weapon1Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -899,7 +904,7 @@ GameObject:
   - component: {fileID: 763985739}
   - component: {fileID: 763985738}
   m_Layer: 5
-  m_Name: Seed Label
+  m_Name: SeedLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1059,7 +1064,7 @@ GameObject:
   - component: {fileID: 820397445}
   - component: {fileID: 820397444}
   m_Layer: 5
-  m_Name: TextMeshPro Text
+  m_Name: ButtonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1219,7 +1224,7 @@ GameObject:
   - component: {fileID: 950566630}
   - component: {fileID: 950566629}
   m_Layer: 5
-  m_Name: Weapon 3 Label
+  m_Name: Weapon3Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1432,8 +1437,8 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 5609a4fc023823448acf3e3682e7c9b2, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -1462,7 +1467,7 @@ GameObject:
   - component: {fileID: 1411533352}
   - component: {fileID: 1411533351}
   m_Layer: 5
-  m_Name: Proceed Button
+  m_Name: AdvanceButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1590,7 +1595,7 @@ GameObject:
   - component: {fileID: 2002322006}
   - component: {fileID: 2002322005}
   m_Layer: 5
-  m_Name: Currency Label
+  m_Name: CurrencyLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1750,7 +1755,7 @@ GameObject:
   - component: {fileID: 2124191793}
   - component: {fileID: 2124191792}
   m_Layer: 5
-  m_Name: Plant Label
+  m_Name: PlantLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

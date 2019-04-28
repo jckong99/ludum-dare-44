@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public enum Phase { Day, Night, Dawn };
 public enum Weather { Sun, Clouds, Rain };
@@ -7,9 +8,15 @@ public enum Weather { Sun, Clouds, Rain };
 public class GameManager : MonoBehaviour
 {
     private static GameManager gameManager;
+
     [SerializeField] private GameObject plantPrefab = null;
     [SerializeField] private GameObject enemyPrefab = null;
     [SerializeField] private GameObject[] tilePrefabs = null;
+
+    [SerializeField] private TextMeshProUGUI dayLabel = null;
+    [SerializeField] private TextMeshProUGUI plantLabel = null;
+    [SerializeField] private TextMeshProUGUI seedLabel = null;
+    [SerializeField] private TextMeshProUGUI ERPLabel = null;
 
     private int width, height;
     private Entity[,] gameBoard;
@@ -55,6 +62,7 @@ public class GameManager : MonoBehaviour
         if (gameManager == null)
         {
             gameManager = this;
+            DontDestroyOnLoad(gameManager);
         } else if (gameManager != this)
         {
             Destroy(gameManager);
@@ -63,7 +71,6 @@ public class GameManager : MonoBehaviour
         {
 
         }*/
-        DontDestroyOnLoad(gameManager);
 /*        InitGame();*/
     }
 
@@ -214,5 +221,10 @@ public class GameManager : MonoBehaviour
 
                 break;
         }
+
+        dayLabel.text = "Day: " + currentCycle;
+        plantLabel.text = "Plants on Field: " + plantCount;
+        seedLabel.text = "Seeds: " + seedCount;
+        ERPLabel.text = "[ERP]: " + ERPCount;
     }
 }
