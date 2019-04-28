@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public enum Phase { Day, Night, Dawn };
@@ -17,6 +18,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI plantLabel = null;
     [SerializeField] private TextMeshProUGUI seedLabel = null;
     [SerializeField] private TextMeshProUGUI ERPLabel = null;
+
+    [SerializeField] private Button advanceButton = null;
+    [SerializeField] private TextMeshProUGUI buttonLabel = null;
+    [SerializeField] private Image clockFill = null;
 
     private int width, height;
     private Entity[,] gameBoard;
@@ -36,7 +41,7 @@ public class GameManager : MonoBehaviour
 
     /* Time-related data */
     private float remainingTime;
-    private const float RESET_TIME = 300;
+    private const float RESET_TIME = 3;
 
     /* Cycle-related data */
     private uint currentCycle;
@@ -94,6 +99,8 @@ public class GameManager : MonoBehaviour
 
         /* Initialize at dawn. */
         currentPhase = Phase.Dawn;
+        buttonLabel.text = "Finished\nPlanting";
+        clockFill.gameObject.SetActive(false);
         currentWeather = Weather.Sun;
         currentCycle = 1;
 
@@ -115,9 +122,14 @@ public class GameManager : MonoBehaviour
         if (currentPhase == Phase.Dawn)
         {
             currentPhase = Phase.Day;
+            buttonLabel.text = "Advance\nto\nNight";
         } else if (currentPhase == Phase.Day)
         {
             currentPhase = Phase.Night;
+            advanceButton.enabled = false;
+            clockFill.fillAmount = 1f;
+            clockFill.gameObject.SetActive(true);
+            buttonLabel.text = remainingTime.ToString("f1");
         } /*else if (RemainingTime <= 0)
         {
             currentPhase = Phase.Dawn;
@@ -183,10 +195,15 @@ public class GameManager : MonoBehaviour
                 break;
             case Phase.Night:
                 remainingTime -= Time.deltaTime;
+                clockFill.fillAmount = remainingTime / RESET_TIME;
+                buttonLabel.text = remainingTime.ToString("f1");
                 if (remainingTime <= 0)
                 {
                     currentPhase = Phase.Dawn;
                     currentCycle ++;
+                    clockFill.gameObject.SetActive(false);
+                    advanceButton.enabled = true;
+                    buttonLabel.text = "Finished\nPlanting";
                     return;
                 }
                 uint enemyLimit = (uint) (nutrients / 0.25f);
