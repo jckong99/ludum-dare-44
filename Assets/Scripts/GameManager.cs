@@ -87,6 +87,7 @@ public class GameManager : MonoBehaviour
         /* Initialize at dawn. */
         currentPhase = Phase.Dawn;
         currentWeather = Weather.Sun;
+        currentCycle = 1;
 
         plantCount = 0;
         currentEnemyCount = 0;
