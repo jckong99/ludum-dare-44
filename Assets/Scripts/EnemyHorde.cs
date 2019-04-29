@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-public class EnemyHorde : Entity
+public class EnemyHorde : IEntity
 {
     private Dictionary<int, Enemy> horde = new Dictionary<int, Enemy>();
 
@@ -22,7 +22,7 @@ public class EnemyHorde : Entity
         horde.Remove(enemy.Id);
     }
 
-    public Type getTag()
+    public Type GetTag()
     {
         return Type.Horde;
     }

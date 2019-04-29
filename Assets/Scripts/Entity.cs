@@ -1,8 +1,6 @@
-﻿using UnityEngine;
+﻿public enum Type { Plant, Horde };
 
-public enum Type { Plant, Horde };
-
-public interface Entity
+public interface IEntity
 {
-    Type getTag();
+    Type GetTag();
 }

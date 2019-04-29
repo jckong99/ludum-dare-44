@@ -27,7 +27,7 @@ public class Enemy : MonoBehaviour
     private void UpdateGridPosition()
     {
         GameManager gameManager = GameManager.GetInstance();
-        Entity entity;
+        IEntity entity;
 
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
@@ -35,12 +35,12 @@ public class Enemy : MonoBehaviour
         {
             int posX = (int)targetPosition.x;
             int posY = (int)targetPosition.y;
-            if ((entity = gameManager.EntityAt(posX, posY)).getTag() == Type.Plant)
+            if ((entity = gameManager.EntityAt(posX, posY)).GetTag() == Type.Plant)
             {
                 gameManager.KillPlant(posX, posY);
             }
             ((EnemyHorde)entity).AddEnemy(this);
-            if ((entity = gameManager.EntityAt(posX, posY)).getTag() == Type.Horde)
+            if ((entity = gameManager.EntityAt(posX, posY)).GetTag() == Type.Horde)
             {
                 ((EnemyHorde)entity).RemoveEnemy(this);
             }

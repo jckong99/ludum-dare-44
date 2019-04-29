@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class Plant : MonoBehaviour, Entity
+public class Plant : MonoBehaviour, IEntity
 {
     public int X { get; set; }
     public int Y { get; set; }
@@ -15,7 +15,7 @@ public class Plant : MonoBehaviour, Entity
         
     }
 
-    public Type getTag()
+    public Type GetTag()
     {
         return Type.Plant;
     }

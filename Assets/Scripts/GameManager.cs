@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Image clockFill = null;
 
     private int width, height;
-    private Entity[,] gameBoard;
+    private IEntity[,] gameBoard;
     private Dictionary<Plant, uint> plantHistory;
     private bool weaponMode;
 
@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour
         return gameManager;
     }
 
-    public Entity EntityAt(int x, int y) {
+    public IEntity EntityAt(int x, int y) {
         return gameBoard[y, x];
     }
 
@@ -73,51 +73,7 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameManager);
         }
-        /*else // no-op
-        {
-
-        }*/
-/*        InitGame();*/
-    }
-
-    // Start is called before the first frame update
-    private void Start()
-    {
-        /* Init data structures */
-        width = 16;
-        height = 16;
-        gameBoard = new Entity[height, width];
-        for (uint r = 0; r < height; r++)
-        {
-            for (uint c = 0; c < width; c++)
-            {
-                /* 50% chance for plain tile, 25% chance each for other types */
-                int rand = Random.Range(0, 4);
-                int tileIndex = rand >= tilePrefabs.Length ? 0 : rand;
-                Tile tile = Instantiate(tilePrefabs[tileIndex], new Vector3(c * TILE_SIZE, r * TILE_SIZE, 0f), Quaternion.identity).GetComponent<Tile>();
-                tile.SetPosition(c, r);
-
-                gameBoard[r, c] = new EnemyHorde();
-            }
-        }
-
-        plantHistory = new Dictionary<Plant, uint>();
-
-        /* Initialize at dawn. */
-        currentPhase = Phase.Dawn;
-        buttonLabel.text = "Finished\nPlanting";
-        clockFill.gameObject.SetActive(false);
-        currentWeather = Weather.Sun;
-        currentCycle = 1;
-
-        plantCount = 0;
-        currentEnemyCount = 0;
-        ERPCount = 0;
-        seedCount = 1;
-        hydration = 10; // on a scale 0 - 20?
-        nutrients = 4.50f; // on a scale 0 - 10?
-        remainingTime = RESET_TIME;
-        weaponMode = false;
+        InitGame();
     }
 
     /// <summary>
@@ -153,9 +109,10 @@ public class GameManager : MonoBehaviour
     /// <param name="y"></param>
     public void AddPlant(uint x, uint y)
     {
-        Plant Spawn = Instantiate(plantPrefab, new Vector3(x*TILE_SIZE, y*TILE_SIZE, 0), Quaternion.identity).GetComponent<Plant>();
-        plantHistory.Add(Spawn, currentCycle);
-        gameBoard[y, x] = Spawn;
+        Plant spawn = Instantiate(plantPrefab, new Vector3(x*TILE_SIZE, y*TILE_SIZE, 0), Quaternion.identity).GetComponent<Plant>();
+        plantHistory.Add(spawn, currentCycle);
+        gameBoard[y, x] = spawn;
+        plantCount++;
     }
 
     /// <summary>
@@ -164,15 +121,18 @@ public class GameManager : MonoBehaviour
     /// <param name="extracted"></param>
     public void ExtractPlant(Plant extracted)
     {
-        gameBoard[extracted.Y, extracted.X] = null;
         plantCount--;
         ERPCount++;
 
         /* TODO process the "Return," which means
-         * increasing the Hydration and/or Nutrients globally. */
+         * increasing the Hydration and/or Nutrients globally.
+         * Another TODO: figure out seed yield and return it to player */
         uint daysAlive = currentCycle - plantHistory[extracted];
         hydration = Mathf.Max(20, hydration + (int)daysAlive);
         nutrients += Mathf.Max(10.0f, nutrients + (0.1f*daysAlive));
+        plantHistory.Remove(extracted);
+        gameBoard[extracted.Y, extracted.X] = new EnemyHorde();
+        Destroy(extracted.gameObject);
     }
 
     /// <summary>
@@ -185,6 +145,7 @@ public class GameManager : MonoBehaviour
             throw new System.Exception();
         }
         plantCount--;
+        plantHistory.Remove((Plant)gameBoard[y, x]);
         Destroy((Plant)gameBoard[y, x]);
         gameBoard[y, x] = new EnemyHorde();
     }
@@ -233,7 +194,7 @@ public class GameManager : MonoBehaviour
                             }
                             Enemy next = (Instantiate(enemyPrefab, new Vector3(nX,
     nY, 0), Quaternion.identity)).AddComponent<Enemy>();
-                            if (gameBoard[nY, nX].getTag() == Type.Plant)
+                            if (gameBoard[nY, nX].GetTag() == Type.Plant)
                             {
                                 KillPlant(nX, nY);
                             }
@@ -285,8 +246,50 @@ public class GameManager : MonoBehaviour
                 }
                 break;
             case Phase.Day:
-
+                if (gameBoard[tileY, tileX].GetTag() == Type.Plant)
+                {
+                    ExtractPlant((Plant)gameBoard[tileY, tileX]);
+                }
                 break;
         }
+    }
+
+    private void InitGame()
+    {
+        /* Init data structures */
+        width = 16;
+        height = 16;
+        gameBoard = new IEntity[height, width];
+        for (uint r = 0; r < height; r++)
+        {
+            for (uint c = 0; c < width; c++)
+            {
+                /* 50% chance for plain tile, 25% chance each for other types */
+                int rand = Random.Range(0, 4);
+                int tileIndex = rand >= tilePrefabs.Length ? 0 : rand;
+                Tile tile = Instantiate(tilePrefabs[tileIndex], new Vector3(c * TILE_SIZE, r * TILE_SIZE, 0f), Quaternion.identity).GetComponent<Tile>();
+                tile.SetPosition(c, r);
+
+                gameBoard[r, c] = new EnemyHorde();
+            }
+        }
+
+        plantHistory = new Dictionary<Plant, uint>();
+
+        /* Initialize at dawn. */
+        currentPhase = Phase.Dawn;
+        buttonLabel.text = "Finished\nPlanting";
+        clockFill.gameObject.SetActive(false);
+        currentWeather = Weather.Sun;
+        currentCycle = 1;
+
+        plantCount = 0;
+        currentEnemyCount = 0;
+        ERPCount = 0;
+        seedCount = 1;
+        hydration = 10; // on a scale 0 - 20?
+        nutrients = 4.50f; // on a scale 0 - 10?
+        remainingTime = RESET_TIME;
+        weaponMode = false;
     }
 }

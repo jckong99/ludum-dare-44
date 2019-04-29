@@ -25,7 +25,7 @@ public class Tile : MonoBehaviour
         playerHighlight.enabled = false;
     }
 
-    private void OnMouseDown()
+    private void OnMouseUp()
     {
         GameManager.GetInstance().OnTileClick(X, Y);
     }
