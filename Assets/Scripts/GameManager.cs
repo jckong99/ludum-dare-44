@@ -38,7 +38,6 @@ public class GameManager : MonoBehaviour
 
     private uint currentEnemyCount;
 
-
     /* Time-related data */
     private float remainingTime;
     private const float RESET_TIME = 3;
@@ -50,6 +49,8 @@ public class GameManager : MonoBehaviour
     /* A constant used anywhere, for graphical rendering */
     /* Assumes a 16 tile x 16 tile (800p x 800p) board */
     public const float TILE_SIZE = 0.500f;
+
+    private const int SEED_RATIO = 2; // 2 seeds extracted per plant
 
     private Phase currentPhase;
     private Weather currentWeather;
@@ -133,6 +134,7 @@ public class GameManager : MonoBehaviour
         plantHistory.Remove(extracted);
         gameBoard[extracted.Y, extracted.X] = new EnemyHorde();
         Destroy(extracted.gameObject);
+        seedCount += SEED_RATIO;
     }
 
     /// <summary>
@@ -166,11 +168,18 @@ public class GameManager : MonoBehaviour
                 buttonLabel.text = remainingTime.ToString("f1");
                 if (remainingTime <= 0)
                 {
-                    currentPhase = Phase.Dawn;
+                    if (seedCount > 0)
+                    {
+                        currentPhase = Phase.Dawn;
+                        buttonLabel.text = "Finished\nPlanting";
+                    } else
+                    {
+                        currentPhase = Phase.Day;
+                        buttonLabel.text = "Advance\nto\nNight";
+                    }
                     currentCycle ++;
                     clockFill.gameObject.SetActive(false);
                     advanceButton.enabled = true;
-                    buttonLabel.text = "Finished\nPlanting";
                     return;
                 }
                 uint enemyLimit = (uint) (nutrients / 0.25f);
@@ -193,7 +202,7 @@ public class GameManager : MonoBehaviour
                                 nY = Random.Range(0, (int) TILE_SIZE * height);
                             }
                             Enemy next = (Instantiate(enemyPrefab, new Vector3(nX,
-    nY, 0), Quaternion.identity)).AddComponent<Enemy>();
+                                nY, 0), Quaternion.identity)).AddComponent<Enemy>();
                             if (gameBoard[nY, nX].GetTag() == Type.Plant)
                             {
                                 KillPlant(nX, nY);
