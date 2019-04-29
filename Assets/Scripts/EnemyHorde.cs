@@ -26,4 +26,9 @@ public class EnemyHorde : IEntity
     {
         return Type.Horde;
     }
+
+    public int Size()
+    {
+        return horde.Count;
+    }
 }

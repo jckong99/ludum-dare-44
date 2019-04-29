@@ -110,12 +110,23 @@ public class GameManager : MonoBehaviour
     /// <param name="y"></param>
     public void AddPlant(uint x, uint y)
     {
-        Plant spawn = Instantiate(plantPrefab, new Vector3(x*TILE_SIZE, y*TILE_SIZE, 0), Quaternion.identity).GetComponent<Plant>();
-        spawn.X = x;
-        spawn.Y = y;
-        plantHistory.Add(spawn, currentCycle);
-        gameBoard[y, x] = spawn;
-        plantCount++;
+        if (seedCount > 0)
+        {
+            if (gameBoard[y, x].GetTag() == Type.Plant)
+            {
+
+            }
+            else if (((EnemyHorde)gameBoard[y, x]).Size() == 0)
+            {
+                Plant spawn = Instantiate(plantPrefab, new Vector3(x * TILE_SIZE, y * TILE_SIZE, 0), Quaternion.identity).GetComponent<Plant>();
+                spawn.X = x;
+                spawn.Y = y;
+                plantHistory.Add(spawn, currentCycle);
+                gameBoard[y, x] = spawn;
+                plantCount++;
+                seedCount--;
+            }
+        }
     }
 
     /// <summary>
@@ -250,11 +261,7 @@ public class GameManager : MonoBehaviour
         switch (currentPhase)
         {
             case Phase.Dawn:
-                if (seedCount > 0)
-                {
-                    seedCount--;
-                    AddPlant(tileX, tileY);
-                }
+                AddPlant(tileX, tileY);
                 break;
             case Phase.Day:
                 if (gameBoard[tileY, tileX].GetTag() == Type.Plant)
