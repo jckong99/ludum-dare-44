@@ -297,7 +297,7 @@ public class GameManager : MonoBehaviour
         plantCount = 0;
         currentEnemyCount = 0;
         ERPCount = 0;
-        seedCount = 1;
+        seedCount = 2;
         hydration = 10; // on a scale 0 - 20?
         nutrients = 4.50f; // on a scale 0 - 10?
         remainingTime = RESET_TIME;
