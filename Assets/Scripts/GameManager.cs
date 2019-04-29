@@ -47,8 +47,8 @@ public class GameManager : MonoBehaviour
     private uint goalCycle;
 
     /* A constant used anywhere, for graphical rendering */
-    /* Assumes a 16 tile x 16 tile (800p x 800p) board */
-    public const float TILE_SIZE = 0.500f;
+    /* Assumes a 9 tile x 9 tile (900p x 900p) board */
+    public const float TILE_SIZE = 1.000f;
 
     private const int SEED_RATIO = 2; // 2 seeds extracted per plant
 
@@ -111,6 +111,8 @@ public class GameManager : MonoBehaviour
     public void AddPlant(uint x, uint y)
     {
         Plant spawn = Instantiate(plantPrefab, new Vector3(x*TILE_SIZE, y*TILE_SIZE, 0), Quaternion.identity).GetComponent<Plant>();
+        spawn.X = x;
+        spawn.Y = y;
         plantHistory.Add(spawn, currentCycle);
         gameBoard[y, x] = spawn;
         plantCount++;
@@ -266,8 +268,8 @@ public class GameManager : MonoBehaviour
     private void InitGame()
     {
         /* Init data structures */
-        width = 16;
-        height = 16;
+        width = 9;
+        height = 9;
         gameBoard = new IEntity[height, width];
         for (uint r = 0; r < height; r++)
         {

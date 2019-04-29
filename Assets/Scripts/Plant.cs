@@ -2,21 +2,20 @@
 
 public class Plant : MonoBehaviour, IEntity
 {
-    public int X { get; set; }
-    public int Y { get; set; }
+    [SerializeField] private ParticleSystem deathEffect1;
+    [SerializeField] private ParticleSystem deathEffect2;
 
-    private void Start()
-    {
-        
-    }
-
-    private void Update()
-    {
-        
-    }
+    public uint X { get; set; }
+    public uint Y { get; set; }
 
     public Type GetTag()
     {
         return Type.Plant;
+    }
+
+    private void OnDisable()
+    {
+        Instantiate(deathEffect1, transform.position, Quaternion.identity);
+        Instantiate(deathEffect2, transform.position, Quaternion.identity);
     }
 }
