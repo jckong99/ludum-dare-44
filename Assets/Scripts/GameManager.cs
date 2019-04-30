@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -23,9 +24,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI buttonLabel = null;
     [SerializeField] private Image clockFill = null;
 
+    [SerializeField] private GameObject menu = null;
+
+    private bool inGame = false;
+
     private int width, height;
     private IEntity[,] gameBoard;
     private Dictionary<Plant, uint> plantHistory;
+    private List<Enemy> activeEnemies;
     private bool weaponMode;
 
     /* GLOBAL STATS */
@@ -74,7 +80,6 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameManager);
         }
-        InitGame();
     }
 
     /// <summary>
@@ -189,67 +194,72 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        switch (currentPhase)
+        if (inGame)
         {
-            case Phase.Dawn:
+            switch (currentPhase)
+            {
+                case Phase.Dawn:
 
-                break;
-            case Phase.Day:
-                
-                break;
-            case Phase.Night:
-                /* Update time, clock, and text */
-                remainingTime -= Time.deltaTime;
-                clockFill.fillAmount = remainingTime / RESET_TIME;
-                buttonLabel.text = remainingTime.ToString("f1");
-                /* Advance to next phase (Dawn if seeds are available, Day otherwise) at Night's end */
-                if (remainingTime <= 0)
-                {
-                    if (seedCount > 0)
+                    break;
+                case Phase.Day:
+
+                    break;
+                case Phase.Night:
+                    /* Update time, clock, and text */
+                    remainingTime -= Time.deltaTime;
+                    clockFill.fillAmount = remainingTime / RESET_TIME;
+                    buttonLabel.text = remainingTime.ToString("f1");
+                    /* Advance to next phase (Dawn if seeds are available, Day otherwise) at Night's end */
+                    if (remainingTime <= 0)
                     {
-                        currentPhase = Phase.Dawn;
-                        buttonLabel.text = "Finished\nPlanting";
-                    } else
-                    {
-                        currentPhase = Phase.Day;
-                        buttonLabel.text = "Advance\nto\nNight";
-                    }
-                    currentCycle ++;
-                    clockFill.gameObject.SetActive(false);
-                    advanceButton.enabled = true;
-                    return;
-                }
-                //uint enemyLimit = (uint) (nutrients / 0.25f);
-                uint enemyLimit = 1;
-                if (currentEnemyCount < enemyLimit)
-                {
-                    if (remainingTime < 0.25*RESET_TIME && 
-                        remainingTime > 0.22*RESET_TIME)
-                    {
-                        for (uint iter = currentEnemyCount; iter < enemyLimit; iter++)
+                        if (seedCount > 0)
                         {
-                            int nX;
-                            int nY;
-                            if (Random.Range(0.0f, 1.0f) < 0.50f)
-                            {
-                                nX = Random.Range(0, (int)TILE_SIZE * width);
-                                nY = 0;
-                            } else
-                            {
-                                nX = 0;
-                                nY = Random.Range(0, (int) TILE_SIZE * height);
-                            }
-                            Enemy next = Instantiate(enemyPrefab, new Vector3(nX,
-                                nY, 0), Quaternion.identity).GetComponent<Enemy>();
-                            if (gameBoard[nY, nX].GetTag() == Type.Plant)
-                            {
-                                KillPlant(nX, nY);
-                            }
-                            ((EnemyHorde)gameBoard[nY, nX]).AddEnemy(next);
+                            currentPhase = Phase.Dawn;
+                            buttonLabel.text = "Finished\nPlanting";
                         }
-                        currentEnemyCount = enemyLimit;
-/*                    } else if (remainingTime < 0.70f*RESET_TIME) {*/
-                    } /*else if ((remainingTime > 0.70f * RESET_TIME) &&
+                        else
+                        {
+                            currentPhase = Phase.Day;
+                            buttonLabel.text = "Advance\nto\nNight";
+                        }
+                        currentCycle++;
+                        clockFill.gameObject.SetActive(false);
+                        advanceButton.enabled = true;
+                        return;
+                    }
+                    //uint enemyLimit = (uint) (nutrients / 0.25f);
+                    uint enemyLimit = 1;
+                    if (currentEnemyCount < enemyLimit)
+                    {
+                        if (remainingTime < 0.25 * RESET_TIME &&
+                            remainingTime > 0.22 * RESET_TIME)
+                        {
+                            for (uint iter = currentEnemyCount; iter < enemyLimit; iter++)
+                            {
+                                int nX;
+                                int nY;
+                                if (Random.Range(0.0f, 1.0f) < 0.50f)
+                                {
+                                    nX = Random.Range(0, (int)TILE_SIZE * width);
+                                    nY = 0;
+                                }
+                                else
+                                {
+                                    nX = 0;
+                                    nY = Random.Range(0, (int)TILE_SIZE * height);
+                                }
+                                Enemy next = Instantiate(enemyPrefab, new Vector3(nX,
+                                    nY, 0), Quaternion.identity).GetComponent<Enemy>();
+                                activeEnemies.Add(next);
+                                if (gameBoard[nY, nX].GetTag() == Type.Plant)
+                                {
+                                    KillPlant(nX, nY);
+                                }
+                                ((EnemyHorde)gameBoard[nY, nX]).AddEnemy(next);
+                            }
+                            currentEnemyCount = enemyLimit;
+                            /*                    } else if (remainingTime < 0.70f*RESET_TIME) {*/
+                        } /*else if ((remainingTime > 0.70f * RESET_TIME) &&
                          (remainingTime < 0.75f * RESET_TIME))
                     {
                         float chance = Random.Range(0.0f, 1.0f);
@@ -259,6 +269,7 @@ public class GameManager : MonoBehaviour
                             Enemy next = Instantiate(enemyPrefab,
                                 new Vector3((nX = Random.Range(0.0f, TILE_SIZE * width)),
                                 0, 0), Quaternion.identity).GetComponent<Enemy>();
+                            activeEnemies.Add(next);
                             if (gameBoard[0, (int)nX].GetTag() == Type.Plant)
                             {
                                 KillPlant((int)nX, 0);
@@ -266,37 +277,80 @@ public class GameManager : MonoBehaviour
                             ((EnemyHorde)gameBoard[0, (int)nX]).AddEnemy(next);
                         }
                     }*/
-                }
-                if (Input.GetKeyDown(KeyCode.A))
-                {
-                    weaponMode = true;
-                }
-                if (Input.GetKeyDown(KeyCode.Escape))
-                {
-                    weaponMode = false;
-                }
-                break;
-        }
+                    }
+                    if (Input.GetKeyDown(KeyCode.A))
+                    {
+                        weaponMode = true;
+                    }
+                    if (Input.GetKeyDown(KeyCode.Escape))
+                    {
+                        weaponMode = false;
+                    }
+                    break;
+            }
 
-        dayLabel.text = "Day: " + currentCycle;
-        plantLabel.text = "Plants on Field: " + plantCount;
-        seedLabel.text = "Seeds: " + seedCount;
-        ERPLabel.text = "[ERP]: " + ERPCount;
+            dayLabel.text = "Day: " + currentCycle;
+            plantLabel.text = "Plants on Field: " + plantCount;
+            seedLabel.text = "Seeds: " + seedCount;
+            ERPLabel.text = "[ERP]: " + ERPCount;
+        }
     }
 
     public void OnTileClick(uint tileX, uint tileY)
     {
-        switch (currentPhase)
+        if (inGame)
         {
-            case Phase.Dawn:
-                AddPlant(tileX, tileY);
-                break;
-            case Phase.Day:
-                if (gameBoard[tileY, tileX].GetTag() == Type.Plant)
-                {
-                    ExtractPlant((Plant)gameBoard[tileY, tileX]);
-                }
-                break;
+            switch (currentPhase)
+            {
+                case Phase.Dawn:
+                    AddPlant(tileX, tileY);
+                    break;
+                case Phase.Day:
+                    if (gameBoard[tileY, tileX].GetTag() == Type.Plant)
+                    {
+                        ExtractPlant((Plant)gameBoard[tileY, tileX]);
+                    }
+                    break;
+            }
+        }
+    }
+
+    public void Play()
+    {
+        InitGame();
+        StartCoroutine(MoveMenu(1));
+        inGame = true;
+    }
+
+    public void Quit()
+    {
+        StartCoroutine(MoveMenu(-1));
+        ClearBoard();
+        inGame = false;
+    }
+
+    private IEnumerator MoveMenu(int direction)
+    {
+        RectTransform rectTransform = menu.GetComponent<RectTransform>();
+        float targetY = direction > 0 ? 1700f : 0f, speed = 1700f;
+
+        while (rectTransform.anchoredPosition.y != targetY)
+        {
+            rectTransform.anchoredPosition = Vector2.MoveTowards(rectTransform.anchoredPosition, new Vector2(0, targetY) * direction, Time.deltaTime * speed);
+            yield return new WaitForSeconds(0.01f);
+        }
+    }
+
+    private void ClearBoard()
+    {
+        foreach (Plant p in plantHistory.Keys)
+        {
+            Destroy(p.gameObject);
+        }
+        for (int i = activeEnemies.Count - 1; activeEnemies.Count > 0; i--)
+        {
+            Destroy(activeEnemies[i].gameObject);
+            activeEnemies.RemoveAt(i);
         }
     }
 
@@ -321,6 +375,7 @@ public class GameManager : MonoBehaviour
         }
 
         plantHistory = new Dictionary<Plant, uint>();
+        activeEnemies = new List<Enemy>();
 
         /* Initialize at dawn. */
         currentPhase = Phase.Dawn;
