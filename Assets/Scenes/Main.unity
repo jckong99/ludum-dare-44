@@ -619,7 +619,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   plantPrefab: {fileID: 4178367919487777185, guid: 3929735abca4b404d91d06bd91820795,
     type: 3}
-  enemyPrefab: {fileID: 0}
+  enemyPrefab: {fileID: 5362052940498961018, guid: 83b8f98aeaf3aed44b150c81c9645049,
+    type: 3}
   tilePrefabs:
   - {fileID: 3940969595301125997, guid: c733490a7806e7e4db2074569c0ef1ac, type: 3}
   - {fileID: 3061924221655099713, guid: 4f6c518ae274cf74fbc26b9273dd949b, type: 3}

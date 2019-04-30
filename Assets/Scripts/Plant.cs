@@ -2,8 +2,8 @@
 
 public class Plant : MonoBehaviour, IEntity
 {
-    [SerializeField] private ParticleSystem deathEffect1;
-    [SerializeField] private ParticleSystem deathEffect2;
+    [SerializeField] private ParticleSystem deathEffect1 = null;
+    [SerializeField] private ParticleSystem deathEffect2 = null;
 
     public uint X { get; set; }
     public uint Y { get; set; }

@@ -161,8 +161,30 @@ public class GameManager : MonoBehaviour
         }
         plantCount--;
         plantHistory.Remove((Plant)gameBoard[y, x]);
-        Destroy((Plant)gameBoard[y, x]);
+        Destroy(((Plant)gameBoard[y, x]).gameObject);
         gameBoard[y, x] = new EnemyHorde();
+    }
+
+    /// <summary>
+    /// Returns a Vector3 storing the x and y coordinates of the nearest Plant
+    /// relative to the x and y arguments.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <returns>Vector3 with all components negative if no Plants on gameBoard</returns>
+    public Vector3 GetNearestPlantPosition(int x, int y)
+    {
+        Vector3 nearest = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+
+        foreach (Plant p in plantHistory.Keys)
+        {
+            if (Mathf.Abs(p.X - x) + Mathf.Abs(p.Y - y) < Mathf.Abs(nearest.x - x) + Mathf.Abs(nearest.y - y))
+            {
+                nearest = new Vector3(p.X, p.Y, 0);
+            }
+        }
+
+        return nearest;
     }
 
     private void Update()
@@ -176,9 +198,11 @@ public class GameManager : MonoBehaviour
                 
                 break;
             case Phase.Night:
+                /* Update time, clock, and text */
                 remainingTime -= Time.deltaTime;
                 clockFill.fillAmount = remainingTime / RESET_TIME;
                 buttonLabel.text = remainingTime.ToString("f1");
+                /* Advance to next phase (Dawn if seeds are available, Day otherwise) at Night's end */
                 if (remainingTime <= 0)
                 {
                     if (seedCount > 0)
@@ -195,7 +219,8 @@ public class GameManager : MonoBehaviour
                     advanceButton.enabled = true;
                     return;
                 }
-                uint enemyLimit = (uint) (nutrients / 0.25f);
+                //uint enemyLimit = (uint) (nutrients / 0.25f);
+                uint enemyLimit = 1;
                 if (currentEnemyCount < enemyLimit)
                 {
                     if (remainingTime < 0.25*RESET_TIME && 
@@ -214,8 +239,8 @@ public class GameManager : MonoBehaviour
                                 nX = 0;
                                 nY = Random.Range(0, (int) TILE_SIZE * height);
                             }
-                            Enemy next = (Instantiate(enemyPrefab, new Vector3(nX,
-                                nY, 0), Quaternion.identity)).AddComponent<Enemy>();
+                            Enemy next = Instantiate(enemyPrefab, new Vector3(nX,
+                                nY, 0), Quaternion.identity).GetComponent<Enemy>();
                             if (gameBoard[nY, nX].GetTag() == Type.Plant)
                             {
                                 KillPlant(nX, nY);
@@ -224,17 +249,23 @@ public class GameManager : MonoBehaviour
                         }
                         currentEnemyCount = enemyLimit;
 /*                    } else if (remainingTime < 0.70f*RESET_TIME) {*/
-                    } else if ((remainingTime > 0.70f * RESET_TIME) &&
+                    } /*else if ((remainingTime > 0.70f * RESET_TIME) &&
                          (remainingTime < 0.75f * RESET_TIME))
                     {
                         float chance = Random.Range(0.0f, 1.0f);
                         if (chance > 0.60f)
                         {
-                            Enemy next = (Instantiate(enemyPrefab,
-                                new Vector3(Random.Range(0.0f, TILE_SIZE * width),
-                                0, 0), Quaternion.identity)).AddComponent<Enemy>();
+                            float nX;
+                            Enemy next = Instantiate(enemyPrefab,
+                                new Vector3((nX = Random.Range(0.0f, TILE_SIZE * width)),
+                                0, 0), Quaternion.identity).GetComponent<Enemy>();
+                            if (gameBoard[0, (int)nX].GetTag() == Type.Plant)
+                            {
+                                KillPlant((int)nX, 0);
+                            }
+                            ((EnemyHorde)gameBoard[0, (int)nX]).AddEnemy(next);
                         }
-                    }
+                    }*/
                 }
                 if (Input.GetKeyDown(KeyCode.A))
                 {
@@ -244,9 +275,6 @@ public class GameManager : MonoBehaviour
                 {
                     weaponMode = false;
                 }
-                break;
-            default:
-
                 break;
         }
 
