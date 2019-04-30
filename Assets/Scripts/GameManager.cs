@@ -6,6 +6,7 @@ using TMPro;
 
 public enum Phase { Day, Night, Dawn };
 public enum Weather { Sun, Clouds, Rain };
+public enum Weapon { Red, Green, Blue };
 
 public class GameManager : MonoBehaviour
 {
@@ -19,6 +20,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI plantLabel = null;
     [SerializeField] private TextMeshProUGUI seedLabel = null;
     [SerializeField] private TextMeshProUGUI ERPLabel = null;
+    [SerializeField] private TextMeshProUGUI weaponLabel = null;
+    [SerializeField] private TextMeshProUGUI weaponNo1 = null;
+    [SerializeField] private TextMeshProUGUI weaponNo2 = null;
+    [SerializeField] private TextMeshProUGUI weaponNo3 = null;
+
+    [SerializeField] private GameObject weaponREffect = null;
+    [SerializeField] private GameObject weaponGEffect = null;
+    [SerializeField] private GameObject weaponBEffect = null;
 
     [SerializeField] private Button advanceButton = null;
     [SerializeField] private TextMeshProUGUI buttonLabel = null;
@@ -28,11 +37,12 @@ public class GameManager : MonoBehaviour
 
     private bool inGame = false;
 
-    private int width, height;
+    private const int BOARD_WIDTH = 9, BOARD_HEIGHT = 9;
     private IEntity[,] gameBoard;
+    private Tile[,] tileBoard;
     private Dictionary<Plant, uint> plantHistory;
     private List<Enemy> activeEnemies;
-    private bool weaponMode;
+    private Weapon weapon; /* false for red, true for blue */
 
     /* GLOBAL STATS */
     /* The only one we should need to share with the user is the SeedCount. */
@@ -46,7 +56,7 @@ public class GameManager : MonoBehaviour
 
     /* Time-related data */
     private float remainingTime;
-    private const float RESET_TIME = 3;
+    private const float RESET_TIME = 10;
 
     /* Cycle-related data */
     private uint currentCycle;
@@ -106,6 +116,11 @@ public class GameManager : MonoBehaviour
         }*/ // should not need this...
     }
 
+    public Phase GetPhase()
+    {
+        return currentPhase;
+    }
+
     /// <summary>
     /// Precondition: x and y are nonnegative integers that are valid game board indices.
     /// Postcondition: processes the addition of this plant object,
@@ -160,7 +175,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void KillPlant(int x, int y)
     {
-        if (x < 0 || y < 0 || x >= width || y >= height)
+        if (x < 0 || y < 0 || x >= BOARD_WIDTH || y >= BOARD_HEIGHT)
         {
             throw new System.Exception();
         }
@@ -212,6 +227,8 @@ public class GameManager : MonoBehaviour
                     /* Advance to next phase (Dawn if seeds are available, Day otherwise) at Night's end */
                     if (remainingTime <= 0)
                     {
+                        ClearTileHighlights();
+
                         if (seedCount > 0)
                         {
                             currentPhase = Phase.Dawn;
@@ -240,13 +257,13 @@ public class GameManager : MonoBehaviour
                                 int nY;
                                 if (Random.Range(0.0f, 1.0f) < 0.50f)
                                 {
-                                    nX = Random.Range(0, (int)TILE_SIZE * width);
+                                    nX = Random.Range(0, (int)TILE_SIZE * BOARD_WIDTH);
                                     nY = 0;
                                 }
                                 else
                                 {
                                     nX = 0;
-                                    nY = Random.Range(0, (int)TILE_SIZE * height);
+                                    nY = Random.Range(0, (int)TILE_SIZE * BOARD_HEIGHT);
                                 }
                                 Enemy next = Instantiate(enemyPrefab, new Vector3(nX,
                                     nY, 0), Quaternion.identity).GetComponent<Enemy>();
@@ -278,21 +295,50 @@ public class GameManager : MonoBehaviour
                         }
                     }*/
                     }
-                    if (Input.GetKeyDown(KeyCode.A))
+                    if (Input.GetMouseButtonUp(0))
                     {
-                        weaponMode = true;
-                    }
-                    if (Input.GetKeyDown(KeyCode.Escape))
-                    {
-                        weaponMode = false;
+                        
                     }
                     break;
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                weapon = Weapon.Red;
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                weapon = Weapon.Green;
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                weapon = Weapon.Blue;
             }
 
             dayLabel.text = "Day: " + currentCycle;
             plantLabel.text = "Plants on Field: " + plantCount;
             seedLabel.text = "Seeds: " + seedCount;
             ERPLabel.text = "[ERP]: " + ERPCount;
+            switch (weapon)
+            {
+                case Weapon.Red:
+                    weaponLabel.text = "<color=red>Red</color>";
+                    weaponNo1.fontSize = 48;
+                    weaponNo2.fontSize = 32;
+                    weaponNo3.fontSize = 32;
+                    break;
+                case Weapon.Green:
+                    weaponLabel.text = "<color=green>Green</color>";
+                    weaponNo1.fontSize = 32;
+                    weaponNo2.fontSize = 48;
+                    weaponNo3.fontSize = 32;
+                    break;
+                case Weapon.Blue:
+                    weaponLabel.text = "<color=blue>Blue</color>";
+                    weaponNo1.fontSize = 32;
+                    weaponNo2.fontSize = 32;
+                    weaponNo3.fontSize = 48;
+                    break;
+            }
         }
     }
 
@@ -311,6 +357,20 @@ public class GameManager : MonoBehaviour
                         ExtractPlant((Plant)gameBoard[tileY, tileX]);
                     }
                     break;
+                case Phase.Night:
+                    switch (weapon)
+                    {
+                        case Weapon.Red:
+                            Instantiate(weaponREffect, new Vector3(tileX * TILE_SIZE, tileY * TILE_SIZE, 0f), Quaternion.identity);
+                            break;
+                        case Weapon.Green:
+                            Instantiate(weaponGEffect, new Vector3(tileX * TILE_SIZE, tileY * TILE_SIZE, 0f), Quaternion.identity);
+                            break;
+                        case Weapon.Blue:
+                            Instantiate(weaponBEffect, new Vector3(tileX * TILE_SIZE, tileY * TILE_SIZE, 0f), Quaternion.identity);
+                            break;
+                    }
+                    break;
             }
         }
     }
@@ -325,7 +385,8 @@ public class GameManager : MonoBehaviour
     public void Quit()
     {
         StartCoroutine(MoveMenu(-1));
-        ClearBoard();
+        ClearGameBoard();
+        ClearTileHighlights();
         inGame = false;
     }
 
@@ -341,7 +402,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void ClearBoard()
+    private void ClearGameBoard()
     {
         foreach (Plant p in plantHistory.Keys)
         {
@@ -354,23 +415,60 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void ClearTileHighlights()
+    {
+        for (int r = 0; r < BOARD_HEIGHT; r++)
+        {
+            for (int c = 0; c < BOARD_WIDTH; c++)
+            {
+                tileBoard[r, c].Highlight(false);
+            }
+        }
+    }
+
     private void InitGame()
     {
         /* Init data structures */
-        width = 9;
-        height = 9;
-        gameBoard = new IEntity[height, width];
-        for (uint r = 0; r < height; r++)
+        gameBoard = new IEntity[BOARD_HEIGHT, BOARD_WIDTH];
+        tileBoard = new Tile[BOARD_HEIGHT, BOARD_WIDTH];
+        for (uint r = 0; r < BOARD_HEIGHT; r++)
         {
-            for (uint c = 0; c < width; c++)
+            for (uint c = 0; c < BOARD_WIDTH; c++)
             {
                 /* 50% chance for plain tile, 25% chance each for other types */
                 int rand = Random.Range(0, 4);
                 int tileIndex = rand >= tilePrefabs.Length ? 0 : rand;
                 Tile tile = Instantiate(tilePrefabs[tileIndex], new Vector3(c * TILE_SIZE, r * TILE_SIZE, 0f), Quaternion.identity).GetComponent<Tile>();
                 tile.SetPosition(c, r);
+                tileBoard[r, c] = tile;
 
                 gameBoard[r, c] = new EnemyHorde();
+            }
+        }
+        for (int r = 0; r < BOARD_HEIGHT; r++)
+        {
+            for (int c = 0; c < BOARD_WIDTH; c++)
+            {
+                // Above
+                if (r > 0)
+                {
+                    tileBoard[r, c].AddAdjacentTile(tileBoard[r - 1, c]);
+                }
+                // Below
+                if (r < BOARD_HEIGHT - 1)
+                {
+                    tileBoard[r, c].AddAdjacentTile(tileBoard[r + 1, c]);
+                }
+                // Left
+                if (c > 0)
+                {
+                    tileBoard[r, c].AddAdjacentTile(tileBoard[r, c - 1]);
+                }
+                // Right
+                if (c < BOARD_WIDTH - 1)
+                {
+                    tileBoard[r, c].AddAdjacentTile(tileBoard[r, c + 1]);
+                }
             }
         }
 
@@ -391,6 +489,6 @@ public class GameManager : MonoBehaviour
         hydration = 10; // on a scale 0 - 20?
         nutrients = 4.50f; // on a scale 0 - 10?
         remainingTime = RESET_TIME;
-        weaponMode = false;
+        weapon = Weapon.Red;
     }
 }
